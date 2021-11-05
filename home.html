@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>simple chat app</title>
+ <!---- <link rel="stylesheet" type="text/css" href="style.css">-->
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Roboto&display=swap');
+
+    * {
+      padding: 0;
+      margin: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      background: #F8F8F8;
+      font-family: 'Roboto', sans-serif;
+    }
+
+    .message {
+      width: 800px;
+      max-width: 90%;
+      background: #fff;
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    }
+
+    section.chat__section {
+      width: 800px;
+      max-width: 90%;
+      background: #fff;
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    }
+
+    .message__area {
+      height: 500px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+      padding-top: 40px;
+    }
+
+    .inputchat {
+       height: 40px;
+    width: 90%;
+    border: none;
+    outline: none;
+    padding-left: 5px;
+    font-size: 16px;
+    border: black;
+    background-color:#75b7ba;
+    }
+    .message {
+      padding: 20px;
+      border-radius: 4px;
+      margin-bottom: 40px;
+      max-width: 300px;
+      position: relative;
+    }
+
+    .incoming {
+      background: #8F8BE8;
+      color: #fff;
+    }
+
+    .outgoing {
+      background: #e9eafd;
+      color: #787986;
+      margin-left: auto;
+    }
+
+    .message h4 {
+      position: absolute;
+      top: -20px;
+      left: 0;
+      color: #333;
+      font-size: 14px;
+    }
+    .inputbt{
+      width: 70px;
+      height: 40px;
+    font-size: 18px;
+    border: none;
+    outline: none;
+    background-color: dodgerblue;
+    color: white;
+    cursor: pointer;
+    }
+  </style>
+</head>
+
+<body>
+  <section class="chat__section">
+    <div class="message__area">
+      <ul id="messages"></ul>
+    </div>
+    <div id="form">
+      <input id="inputmsg" class="inputchat"  />
+      <button id="btninp" class="inputbt" type="submit">Send</button>
+    </div>
+  </section>
+
+  <script src="/socket.io/socket.io.js"></script>
+
+  <script>
+    var socket = io();
+    var messages = document.getElementById('messages');
+    var form = document.getElementById('form');
+    var btn = document.getElementById('btninp');
+    var inputtext = document.getElementById('inputmsg');
+    var name;
+    name = prompt("pls enter your name");
+  
+    btn.addEventListener('click', function (e) {
+      e.preventDefault();
+      sendMessage(inputtext.value);
+      
+    });
+    btn.addEventListener('click',function(){
+     inputtext.value=null;
+   })
+    function sendMessage(message) {
+      let msg = {
+        user: name,
+        message: message.trim()
+      }
+      
+      appendMessage(msg, 'outgoing')
+
+      socket.emit('message', msg)
+      scrollToBottom()
+     
+    }
+    socket.on('message', (msg) => {
+      appendMessage(msg, 'incoming');
+      inputtext.value = "";
+      scrollToBottom()
+
+    });
+    function appendMessage(msg, type) {
+      const messageElement = document.createElement('div');
+      let className = type;
+      messageElement.classList.add(className, 'message')
+      let markup = `
+    <h4>${msg.user}</h4>
+    <p>${msg.message}</p>
+      `
+      messageElement.innerHTML = markup;
+      messages.append(messageElement);
+    }
+    function scrollToBottom() {
+      messageArea.scrollTop = messageArea.scrollHeight
+    }
+  </script>
+</body>
+
+</html>
